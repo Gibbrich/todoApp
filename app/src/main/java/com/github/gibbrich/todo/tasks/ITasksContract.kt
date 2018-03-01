@@ -21,5 +21,6 @@ interface ITasksContract
     interface View: IBaseView<Presenter>
     {
         fun setLoadingIndicator(isLoading: Boolean)
+        fun showTasks(tasks: List<Task>)
     }
 }

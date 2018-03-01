@@ -13,9 +13,13 @@ import com.github.gibbrich.todo.model.Task
 @Database(entities = arrayOf(Task::class), version = 1)
 abstract class ToDoDatabase : RoomDatabase()
 {
-    val instance by lazy {
-        Room.databaseBuilder(ToDoApplication.instance.applicationContext, ToDoDatabase::class.java, "ToDoDB.db").build()
-    }
-
     abstract val dao: Dao
+
+    companion object
+    {
+        val instance by lazy {
+            Room.databaseBuilder(ToDoApplication.instance.applicationContext, ToDoDatabase::class.java, "ToDoDB.db")
+                    .build()
+        }
+    }
 }

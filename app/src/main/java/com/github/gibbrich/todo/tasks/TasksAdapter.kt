@@ -12,8 +12,14 @@ import com.github.gibbrich.todo.model.Task
 /**
  * Created by Dvurechenskiyi on 01.03.2018.
  */
-class TasksAdapter(private val tasks: List<Task>, private val listener: ITaskClickListener): BaseAdapter()
+class TasksAdapter(private var tasks: List<Task>, private val listener: ITaskClickListener): BaseAdapter()
 {
+    fun replaceData(data: List<Task>)
+    {
+        tasks = data
+        notifyDataSetChanged()
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View
     {
         val viewHolder: TaskViewHolder

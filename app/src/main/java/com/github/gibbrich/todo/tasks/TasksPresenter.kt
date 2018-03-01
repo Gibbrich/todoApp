@@ -1,11 +1,15 @@
 package com.github.gibbrich.todo.tasks
 
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.source.ITasksDataSource
 
 /**
  * Created by Dvurechenskiyi on 01.03.2018.
  */
-class TasksPresenter(view: ITasksContract.View): ITasksContract.Presenter
+class TasksPresenter(
+        private val view: ITasksContract.View,
+        private val dataSource: ITasksDataSource
+): ITasksContract.Presenter
 {
     init
     {
@@ -34,6 +38,11 @@ class TasksPresenter(view: ITasksContract.View): ITasksContract.Presenter
 
     override fun loadTasks()
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view.setLoadingIndicator(true)
+        val callback: (List<Task>) -> Unit = {
+            view.setLoadingIndicator(false)
+            view.showTasks(it)
+        }
+        dataSource.getTasks(callback)
     }
 }

@@ -22,7 +22,6 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
 {
     private lateinit var presenter: ITasksContract.Presenter
 
-    private lateinit var listView: ListView
     private lateinit var adapter: TasksAdapter
     private lateinit var refreshLayout: SwipeRefreshLayout
 
@@ -38,7 +37,7 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
         // Inflate the layout for this fragment
         val root = inflater.inflate(R.layout.fragment_tasks, container, false)
 
-        listView = root.findViewById(R.id.tasks_list)
+        val listView = root.findViewById<ListView>(R.id.tasks_list)
         listView.adapter = adapter
 
         val addTaskButton = activity.findViewById<FloatingActionButton>(R.id.addTaskButton)
@@ -79,6 +78,11 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
     override fun setLoadingIndicator(isLoading: Boolean)
     {
         refreshLayout.isRefreshing = isLoading
+    }
+
+    override fun showTasks(tasks: List<Task>)
+    {
+        adapter.replaceData(tasks)
     }
 
     companion object

@@ -11,18 +11,18 @@ import java.util.concurrent.Executors
  */
 object AppExecutors
 {
-    const val NETWORK_THREAD_COUNT = 3
+    private const val NETWORK_THREAD_COUNT = 3
 
     private val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
     private val networkThreadPool = Executors.newFixedThreadPool(NETWORK_THREAD_COUNT)
     private val diskExecutor = Executors.newSingleThreadExecutor()
 
-    fun executeOnMainThread(command: Runnable)
+    fun executeOnMainThread(command: () -> Unit)
     {
         mainThreadHandler.post(command)
     }
 
-    fun executeOnDiskThread(command: Runnable)
+    fun executeOnDiskThread(command: () -> Unit)
     {
         diskExecutor.execute(command)
     }
