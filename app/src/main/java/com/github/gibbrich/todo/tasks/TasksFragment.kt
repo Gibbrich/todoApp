@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import android.widget.Toast
 
 import com.github.gibbrich.todo.R
 import com.github.gibbrich.todo.model.Task
@@ -83,6 +84,11 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
     override fun showTasks(tasks: List<Task>)
     {
         adapter.replaceData(tasks)
+    }
+
+    override fun showAddTask()
+    {
+        Toast.makeText(context, "New task added (stub)!", Toast.LENGTH_SHORT).show()
     }
 
     companion object

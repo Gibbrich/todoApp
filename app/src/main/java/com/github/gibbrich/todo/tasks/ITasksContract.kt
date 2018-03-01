@@ -22,5 +22,6 @@ interface ITasksContract
     {
         fun setLoadingIndicator(isLoading: Boolean)
         fun showTasks(tasks: List<Task>)
+        fun showAddTask()
     }
 }

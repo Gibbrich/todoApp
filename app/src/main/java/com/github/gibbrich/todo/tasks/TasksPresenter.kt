@@ -33,7 +33,7 @@ class TasksPresenter(
 
     override fun addNewTask()
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view.showAddTask()
     }
 
     override fun loadTasks()

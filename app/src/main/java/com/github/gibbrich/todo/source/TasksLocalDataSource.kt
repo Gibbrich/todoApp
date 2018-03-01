@@ -12,6 +12,7 @@ object TasksLocalDataSource: ITasksDataSource
     {
         AppExecutors.executeOnDiskThread {
             val tasks = ToDoDatabase.instance.dao.getTasks()
+            Thread.sleep(3000)
             AppExecutors.executeOnMainThread { onTasksLoaded(tasks) }
         }
     }
