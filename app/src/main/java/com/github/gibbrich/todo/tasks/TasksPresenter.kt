@@ -1,5 +1,7 @@
 package com.github.gibbrich.todo.tasks
 
+import android.app.Activity
+import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.source.ITasksDataSource
 
@@ -18,22 +20,30 @@ class TasksPresenter(
 
     override fun completeTask(task: Task)
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view.showStub()
     }
 
     override fun activateTask(task: Task)
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view.showStub()
     }
 
     override fun openTaskDetails(task: Task)
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view.showStub()
     }
 
     override fun addNewTask()
     {
         view.showAddTask()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int)
+    {
+        if (requestCode == AddEditTaskActivity.REQUEST_ADD_EDIT_TASK && resultCode == Activity.RESULT_OK)
+        {
+            view.showSuccessfullySavedMessage()
+        }
     }
 
     override fun loadTasks()

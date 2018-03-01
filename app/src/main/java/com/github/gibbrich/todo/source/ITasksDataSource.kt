@@ -8,4 +8,5 @@ import com.github.gibbrich.todo.model.Task
 interface ITasksDataSource
 {
     fun getTasks(onTasksLoaded: (List<Task>) -> Unit)
+    fun saveTask(task: Task)
 }

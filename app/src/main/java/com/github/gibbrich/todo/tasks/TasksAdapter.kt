@@ -28,7 +28,7 @@ class TasksAdapter(private var tasks: List<Task>, private val listener: ITaskCli
         if (view == null || view.tag == null)
         {
             val layoutInflater = LayoutInflater.from(parent!!.context)
-            view = layoutInflater.inflate(R.layout.task_item, parent)
+            view = layoutInflater.inflate(R.layout.task_item, parent, false)
 
             val completeCheckBox = view.findViewById<CheckBox>(R.id.complete)
             val titleTextView = view.findViewById<TextView>(R.id.title)

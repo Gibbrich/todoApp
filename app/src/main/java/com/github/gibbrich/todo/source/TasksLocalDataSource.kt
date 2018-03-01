@@ -8,6 +8,13 @@ import com.github.gibbrich.todo.utils.AppExecutors
  */
 object TasksLocalDataSource: ITasksDataSource
 {
+    override fun saveTask(task: Task)
+    {
+        AppExecutors.executeOnDiskThread {
+            ToDoDatabase.instance.dao.insertTask(task)
+        }
+    }
+
     override fun getTasks(onTasksLoaded: (List<Task>) -> Unit)
     {
         AppExecutors.executeOnDiskThread {

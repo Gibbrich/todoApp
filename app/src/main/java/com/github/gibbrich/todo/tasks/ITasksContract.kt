@@ -16,6 +16,7 @@ interface ITasksContract
         fun activateTask(task: Task)
         fun addNewTask()
         fun loadTasks()
+        fun onActivityResult(requestCode: Int, resultCode: Int)
     }
 
     interface View: IBaseView<Presenter>
@@ -23,5 +24,8 @@ interface ITasksContract
         fun setLoadingIndicator(isLoading: Boolean)
         fun showTasks(tasks: List<Task>)
         fun showAddTask()
+        fun showSuccessfullySavedMessage()
+        fun showTaskDetails(taskGUID: String)
+        fun showStub()
     }
 }

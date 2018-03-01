@@ -1,6 +1,8 @@
 package com.github.gibbrich.todo.tasks
 
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
@@ -13,7 +15,9 @@ import android.widget.ListView
 import android.widget.Toast
 
 import com.github.gibbrich.todo.R
+import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.taskdetail.TaskDetailActivity
 
 
 /**
@@ -56,6 +60,13 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
         return root
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        presenter.onActivityResult(requestCode, resultCode)
+    }
+
     override fun setPresenter(presenter: ITasksContract.Presenter)
     {
         this.presenter = presenter
@@ -88,7 +99,24 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
 
     override fun showAddTask()
     {
-        Toast.makeText(context, "New task added (stub)!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(activity, AddEditTaskActivity::class.java)
+        startActivityForResult(intent, AddEditTaskActivity.REQUEST_ADD_EDIT_TASK)
+    }
+
+    override fun showSuccessfullySavedMessage()
+    {
+        Toast.makeText(activity, getString(R.string.todo_saved), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showTaskDetails(taskGUID: String)
+    {
+        val intent = TaskDetailActivity.getIntent(context, taskGUID)
+        startActivity(intent)
+    }
+
+    override fun showStub()
+    {
+        Toast.makeText(activity, "Stub!", Toast.LENGTH_SHORT).show()
     }
 
     companion object
