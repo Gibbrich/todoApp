@@ -8,6 +8,21 @@ import com.github.gibbrich.todo.utils.AppExecutors
  */
 object TasksLocalDataSource: ITasksDataSource
 {
+    override fun setTaskState(taskGUID: String, isCompleted: Boolean)
+    {
+        AppExecutors.executeOnDiskThread {
+            ToDoDatabase.instance.dao.setTaskState(taskGUID, isCompleted)
+        }
+    }
+
+    override fun getTask(taskGUID: String, onTaskLoaded: (Task) -> Unit)
+    {
+        AppExecutors.executeOnDiskThread {
+            val task = ToDoDatabase.instance.dao.getTask(taskGUID)
+            AppExecutors.executeOnMainThread { onTaskLoaded(task) }
+        }
+    }
+
     override fun saveTask(task: Task)
     {
         AppExecutors.executeOnDiskThread {
@@ -19,7 +34,6 @@ object TasksLocalDataSource: ITasksDataSource
     {
         AppExecutors.executeOnDiskThread {
             val tasks = ToDoDatabase.instance.dao.getTasks()
-            Thread.sleep(3000)
             AppExecutors.executeOnMainThread { onTasksLoaded(tasks) }
         }
     }

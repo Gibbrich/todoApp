@@ -20,17 +20,17 @@ class TasksPresenter(
 
     override fun completeTask(task: Task)
     {
-        view.showStub()
+        dataSource.setTaskState(task.id, true)
     }
 
     override fun activateTask(task: Task)
     {
-        view.showStub()
+        dataSource.setTaskState(task.id, false)
     }
 
     override fun openTaskDetails(task: Task)
     {
-        view.showStub()
+        view.showTaskDetails(task.id)
     }
 
     override fun addNewTask()
@@ -54,5 +54,10 @@ class TasksPresenter(
             view.showTasks(it)
         }
         dataSource.getTasks(callback)
+    }
+
+    override fun start()
+    {
+        loadTasks()
     }
 }

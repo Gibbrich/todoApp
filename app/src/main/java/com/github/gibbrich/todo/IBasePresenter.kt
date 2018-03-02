@@ -5,5 +5,5 @@ package com.github.gibbrich.todo
  */
 interface IBasePresenter
 {
-
+    fun start()
 }

@@ -10,9 +10,17 @@ interface ITaskDetailContract
 {
     interface View: IBaseView<Presenter>
     {
+        fun showTitle(title: String)
+        fun hideTitle()
+        fun showDescription(description: String)
+        fun hideDescription()
+        fun setTaskCompleted(isCompleted: Boolean)
     }
 
     interface Presenter: IBasePresenter
     {
+        fun loadTask()
+        fun setTaskComplete()
+        fun setTaskActive()
     }
 }

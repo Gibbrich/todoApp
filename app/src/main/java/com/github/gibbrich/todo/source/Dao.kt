@@ -17,4 +17,10 @@ interface Dao
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTask(task: Task)
+
+    @Query("SELECT entryid, title, description, completed FROM Tasks WHERE entryid = :taskGUID")
+    fun getTask(taskGUID: String): Task
+
+    @Query("UPDATE Tasks SET completed = :isCompleted WHERE entryid = :taskGUID")
+    fun setTaskState(taskGUID: String, isCompleted: Boolean)
 }

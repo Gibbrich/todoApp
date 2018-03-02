@@ -60,6 +60,13 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
         return root
     }
 
+    override fun onResume()
+    {
+        super.onResume()
+
+        presenter.start()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
     {
         super.onActivityResult(requestCode, resultCode, data)

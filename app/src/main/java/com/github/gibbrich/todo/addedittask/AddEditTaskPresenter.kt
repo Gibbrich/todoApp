@@ -22,4 +22,8 @@ class AddEditTaskPresenter(
         dataSource.saveTask(Task(title, description))
         view.returnToTasksList()
     }
+
+    override fun start()
+    {
+    }
 }

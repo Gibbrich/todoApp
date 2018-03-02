@@ -9,4 +9,6 @@ interface ITasksDataSource
 {
     fun getTasks(onTasksLoaded: (List<Task>) -> Unit)
     fun saveTask(task: Task)
+    fun getTask(taskGUID: String, onTaskLoaded: (Task) -> Unit)
+    fun setTaskState(taskGUID: String, isCompleted: Boolean)
 }
