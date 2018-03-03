@@ -15,6 +15,7 @@ interface ITaskDetailContract
         fun showDescription(description: String)
         fun hideDescription()
         fun setTaskCompleted(isCompleted: Boolean)
+        fun showEditTask(taskGUID: String)
     }
 
     interface Presenter: IBasePresenter
@@ -22,5 +23,6 @@ interface ITaskDetailContract
         fun loadTask()
         fun setTaskComplete()
         fun setTaskActive()
+        fun editTask()
     }
 }

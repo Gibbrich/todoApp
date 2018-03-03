@@ -10,11 +10,13 @@ interface IAddEditTaskContract
 {
     interface Presenter: IBasePresenter
     {
-        fun createTask(title: String, description: String)
+        fun saveTask(title: String, description: String)
     }
 
     interface View: IBaseView<Presenter>
     {
         fun returnToTasksList()
+        fun setTitle(title: String)
+        fun setDescription(description: String)
     }
 }

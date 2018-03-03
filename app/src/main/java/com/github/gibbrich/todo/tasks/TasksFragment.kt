@@ -1,7 +1,6 @@
 package com.github.gibbrich.todo.tasks
 
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
@@ -107,7 +106,7 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
     override fun showAddTask()
     {
         val intent = Intent(activity, AddEditTaskActivity::class.java)
-        startActivityForResult(intent, AddEditTaskActivity.REQUEST_ADD_EDIT_TASK)
+        startActivityForResult(intent, AddEditTaskActivity.REQUEST_ADD_TASK)
     }
 
     override fun showSuccessfullySavedMessage()

@@ -34,10 +34,17 @@ class AddEditTaskFragment : Fragment(), IAddEditTaskContract.View
 
         val editTaskDoneButton = activity.findViewById<FloatingActionButton>(R.id.fab_edit_task_done)
         editTaskDoneButton.setOnClickListener {
-            presenter.createTask(title.text.toString(), description.text.toString())
+            presenter.saveTask(title.text.toString(), description.text.toString())
         }
 
         return root
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+
+        presenter.start()
     }
 
     override fun setPresenter(presenter: IAddEditTaskContract.Presenter)
@@ -49,6 +56,16 @@ class AddEditTaskFragment : Fragment(), IAddEditTaskContract.View
     {
         activity.setResult(Activity.RESULT_OK)
         activity.finish()
+    }
+
+    override fun setTitle(title: String)
+    {
+        this.title.setText(title)
+    }
+
+    override fun setDescription(description: String)
+    {
+        this.description.setText(description)
     }
 
     companion object

@@ -40,7 +40,7 @@ class TasksPresenter(
 
     override fun onActivityResult(requestCode: Int, resultCode: Int)
     {
-        if (requestCode == AddEditTaskActivity.REQUEST_ADD_EDIT_TASK && resultCode == Activity.RESULT_OK)
+        if (requestCode == AddEditTaskActivity.REQUEST_ADD_TASK && resultCode == Activity.RESULT_OK)
         {
             view.showSuccessfullySavedMessage()
         }

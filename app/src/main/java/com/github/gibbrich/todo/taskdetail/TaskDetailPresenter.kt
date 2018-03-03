@@ -45,7 +45,7 @@ class TaskDetailPresenter(
             }
             else
             {
-                view.showTitle(it.description)
+                view.showDescription(it.description)
             }
 
             view.setTaskCompleted(it.isCompleted)
@@ -61,5 +61,10 @@ class TaskDetailPresenter(
     override fun setTaskActive()
     {
         dataSource.setTaskState(taskGUID, false)
+    }
+
+    override fun editTask()
+    {
+        view.showEditTask(taskGUID)
     }
 }

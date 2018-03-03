@@ -1,6 +1,8 @@
 package com.github.gibbrich.todo.addedittask
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.github.gibbrich.todo.R
@@ -26,11 +28,25 @@ class AddEditTaskActivity : AppCompatActivity()
                     .commit()
         }
 
-        presenter = AddEditTaskPresenter(fragment, TasksLocalDataSource)
+        val taskGUID = intent.getStringExtra(EXTRA_TASK_GUID)
+
+        presenter = AddEditTaskPresenter(taskGUID, fragment, TasksLocalDataSource)
     }
 
     companion object
     {
-        const val REQUEST_ADD_EDIT_TASK = 1
+        const val REQUEST_ADD_TASK = 1
+        const val REQUEST_EDIT_TASK = 2
+        private const val EXTRA_TASK_GUID = "EXTRA_TASK_GUID"
+
+        fun getIntent(context: Context, taskGUID: String?): Intent
+        {
+            val intent = Intent(context, AddEditTaskActivity::class.java)
+            if (taskGUID != null)
+            {
+                intent.putExtra(EXTRA_TASK_GUID, taskGUID)
+            }
+            return intent
+        }
     }
 }
