@@ -9,12 +9,14 @@ import com.github.gibbrich.todo.source.TasksLocalDataSource
 
 class TaskDetailActivity : AppCompatActivity()
 {
-    private lateinit var presenter: TaskDetailPresenter
+    private lateinit var presenter: ITaskDetailContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_detail)
+
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         var fragment = supportFragmentManager.findFragmentById(R.id.contentFrame) as TaskDetailFragment?
         if (fragment == null)
@@ -28,6 +30,12 @@ class TaskDetailActivity : AppCompatActivity()
         val taskGUID = intent.extras[EXTRA_TASK_GUID] as String
 
         presenter = TaskDetailPresenter(taskGUID, fragment, TasksLocalDataSource)
+    }
+
+    override fun onSupportNavigateUp(): Boolean
+    {
+        onBackPressed()
+        return true
     }
 
     companion object

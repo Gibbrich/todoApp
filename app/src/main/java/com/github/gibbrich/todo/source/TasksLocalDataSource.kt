@@ -8,6 +8,14 @@ import com.github.gibbrich.todo.utils.AppExecutors
  */
 object TasksLocalDataSource: ITasksDataSource
 {
+    override fun deleteTask(task: Task)
+    {
+        AppExecutors.executeOnDiskThread {
+            ToDoDatabase.instance.dao.deleteTask(task)
+        }
+    }
+
+
     override fun setTaskState(taskGUID: String, isCompleted: Boolean)
     {
         AppExecutors.executeOnDiskThread {

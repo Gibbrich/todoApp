@@ -1,9 +1,7 @@
 package com.github.gibbrich.todo.source
 
+import android.arch.persistence.room.*
 import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
 import com.github.gibbrich.todo.model.Task
 
 /**
@@ -23,4 +21,7 @@ interface Dao
 
     @Query("UPDATE Tasks SET completed = :isCompleted WHERE entryid = :taskGUID")
     fun setTaskState(taskGUID: String, isCompleted: Boolean)
+
+    @Delete
+    fun deleteTask(task: Task)
 }

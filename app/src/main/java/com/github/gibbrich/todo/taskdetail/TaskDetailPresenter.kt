@@ -14,6 +14,7 @@ class TaskDetailPresenter(
         private val dataSource: ITasksDataSource
 ): ITaskDetailContract.Presenter
 {
+    private lateinit var task: Task
     init
     {
         view.setPresenter(this)
@@ -30,6 +31,8 @@ class TaskDetailPresenter(
     override fun loadTask()
     {
         val onTaskLoaded: (Task) -> Unit = {
+            task = it
+
             if (it.title == null)
             {
                 view.hideTitle()
@@ -66,5 +69,11 @@ class TaskDetailPresenter(
     override fun editTask()
     {
         view.showEditTask(taskGUID)
+    }
+
+    override fun deleteTask()
+    {
+        dataSource.deleteTask(task)
+        view.showTaskDeleted()
     }
 }

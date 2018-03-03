@@ -17,7 +17,7 @@ class AddEditTaskActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_edit_task)
 
-        setResult(Activity.RESULT_CANCELED)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         var fragment = fragmentManager.findFragmentById(R.id.contentFrame) as AddEditTaskFragment?
         if (fragment == null)
@@ -31,6 +31,12 @@ class AddEditTaskActivity : AppCompatActivity()
         val taskGUID = intent.getStringExtra(EXTRA_TASK_GUID)
 
         presenter = AddEditTaskPresenter(taskGUID, fragment, TasksLocalDataSource)
+    }
+
+    override fun onSupportNavigateUp(): Boolean
+    {
+        onBackPressed()
+        return true
     }
 
     companion object
