@@ -7,9 +7,22 @@ import com.github.gibbrich.todo.model.Task
  */
 interface ITasksDataSource
 {
-    fun getTasks(onTasksLoaded: (List<Task>) -> Unit)
+    fun getTasks(listener: ILoadTasksListener)
     fun saveTask(task: Task)
-    fun getTask(taskGUID: String, onTaskLoaded: (Task) -> Unit)
+    fun getTask(taskGUID: String, listener: ILoadTaskListener)
     fun setTaskState(taskGUID: String, isCompleted: Boolean)
     fun deleteTask(task: Task)
+    fun deleteAllTasks()
+}
+
+interface ILoadTasksListener
+{
+    fun onTasksLoaded(tasks: List<Task>)
+    fun onDataNotAvailable()
+}
+
+interface ILoadTaskListener
+{
+    fun onTaskLoaded(task: Task)
+    fun onDataNotAvailable()
 }

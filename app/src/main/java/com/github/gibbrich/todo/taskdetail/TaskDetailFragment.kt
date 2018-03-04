@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.view.*
 import android.widget.CheckBox
 import android.widget.TextView
+import android.widget.Toast
 
 import com.github.gibbrich.todo.R
 import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
@@ -35,7 +36,18 @@ class TaskDetailFragment : Fragment(), ITaskDetailContract.View
 
         title = root.findViewById(R.id.task_detail_title)
         description = root.findViewById(R.id.task_detail_description)
+
         isCompleted = root.findViewById(R.id.task_detail_complete)
+        isCompleted.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked)
+            {
+                presenter.setTaskComplete()
+            }
+            else
+            {
+                presenter.setTaskActive()
+            }
+        }
 
         activity.findViewById<FloatingActionButton>(R.id.fab_edit_task)
                 .setOnClickListener { presenter.editTask() }
@@ -107,16 +119,6 @@ class TaskDetailFragment : Fragment(), ITaskDetailContract.View
     override fun setTaskCompleted(isCompleted: Boolean)
     {
         this.isCompleted.isChecked = isCompleted
-        this.isCompleted.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked)
-            {
-                presenter.setTaskComplete()
-            }
-            else
-            {
-                presenter.setTaskActive()
-            }
-        }
     }
 
     override fun showEditTask(taskGUID: String)
@@ -128,6 +130,13 @@ class TaskDetailFragment : Fragment(), ITaskDetailContract.View
     override fun showTaskDeleted()
     {
         activity.finish()
+    }
+
+    override fun showNoTaskData()
+    {
+        hideTitle()
+        hideDescription()
+        Toast.makeText(activity, "No data available", Toast.LENGTH_SHORT).show()
     }
 
     companion object

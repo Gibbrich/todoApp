@@ -6,7 +6,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.github.gibbrich.todo.R
-import com.github.gibbrich.todo.source.TasksLocalDataSource
+import com.github.gibbrich.todo.source.TasksRepository
 
 class AddEditTaskActivity : AppCompatActivity()
 {
@@ -30,7 +30,7 @@ class AddEditTaskActivity : AppCompatActivity()
 
         val taskGUID = intent.getStringExtra(EXTRA_TASK_GUID)
 
-        presenter = AddEditTaskPresenter(taskGUID, fragment, TasksLocalDataSource)
+        presenter = AddEditTaskPresenter(taskGUID, fragment, TasksRepository)
     }
 
     override fun onSupportNavigateUp(): Boolean

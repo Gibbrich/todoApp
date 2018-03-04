@@ -24,4 +24,7 @@ interface Dao
 
     @Delete
     fun deleteTask(task: Task)
+
+    @Query("DELETE FROM Tasks")
+    fun deleteAllTasks()
 }

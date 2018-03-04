@@ -3,6 +3,7 @@ package com.github.gibbrich.todo.tasks
 import android.app.Activity
 import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.source.ILoadTasksListener
 import com.github.gibbrich.todo.source.ITasksDataSource
 
 /**
@@ -49,10 +50,22 @@ class TasksPresenter(
     override fun loadTasks()
     {
         view.setLoadingIndicator(true)
-        val callback: (List<Task>) -> Unit = {
-            view.setLoadingIndicator(false)
-            view.showTasks(it)
+
+        val callback: ILoadTasksListener = object : ILoadTasksListener
+        {
+            override fun onTasksLoaded(tasks: List<Task>)
+            {
+                view.setLoadingIndicator(false)
+                view.showTasks(tasks)
+            }
+
+            override fun onDataNotAvailable()
+            {
+                view.setLoadingIndicator(false)
+                view.showLoadingTasksError()
+            }
         }
+
         dataSource.getTasks(callback)
     }
 

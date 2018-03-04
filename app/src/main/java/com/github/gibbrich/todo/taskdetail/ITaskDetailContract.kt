@@ -15,6 +15,7 @@ interface ITaskDetailContract
         fun showDescription(description: String)
         fun hideDescription()
         fun setTaskCompleted(isCompleted: Boolean)
+        fun showNoTaskData()
         fun showEditTask(taskGUID: String)
         fun showTaskDeleted()
     }

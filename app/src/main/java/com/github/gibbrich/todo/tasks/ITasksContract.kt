@@ -26,6 +26,6 @@ interface ITasksContract
         fun showAddTask()
         fun showSuccessfullySavedMessage()
         fun showTaskDetails(taskGUID: String)
-        fun showStub()
+        fun showLoadingTasksError()
     }
 }

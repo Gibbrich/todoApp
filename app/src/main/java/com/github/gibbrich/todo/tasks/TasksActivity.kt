@@ -3,7 +3,7 @@ package com.github.gibbrich.todo.tasks
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.github.gibbrich.todo.R
-import com.github.gibbrich.todo.source.TasksLocalDataSource
+import com.github.gibbrich.todo.source.TasksRepository
 
 class TasksActivity : AppCompatActivity()
 {
@@ -23,6 +23,6 @@ class TasksActivity : AppCompatActivity()
                     .commit()
         }
 
-        presenter = TasksPresenter(tasksFragment, TasksLocalDataSource)
+        presenter = TasksPresenter(tasksFragment, TasksRepository)
     }
 }

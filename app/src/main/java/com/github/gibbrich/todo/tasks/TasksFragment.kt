@@ -120,9 +120,9 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
         startActivity(intent)
     }
 
-    override fun showStub()
+    override fun showLoadingTasksError()
     {
-        Toast.makeText(activity, "Stub!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, "No tasks available", Toast.LENGTH_SHORT).show()
     }
 
     companion object

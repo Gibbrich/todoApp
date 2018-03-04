@@ -43,14 +43,14 @@ class TasksAdapter(private var tasks: List<Task>, private val listener: ITaskCli
 
         viewHolder.title.text = task.title
         viewHolder.completeCheckBox.isChecked = task.isCompleted
-        viewHolder.completeCheckBox.setOnClickListener {
-            if (task.isCompleted)
+        viewHolder.completeCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked)
             {
-                listener.activateTask(task)
+                listener.completeTask(task)
             }
             else
             {
-                listener.completeTask(task)
+                listener.activateTask(task)
             }
         }
 

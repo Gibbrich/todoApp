@@ -3,6 +3,7 @@ package com.github.gibbrich.todo.taskdetail
 import com.github.gibbrich.todo.R
 import com.github.gibbrich.todo.ToDoApplication
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
 
 /**
@@ -12,9 +13,10 @@ class TaskDetailPresenter(
         private val taskGUID: String,
         private val view: ITaskDetailContract.View,
         private val dataSource: ITasksDataSource
-): ITaskDetailContract.Presenter
+) : ITaskDetailContract.Presenter
 {
     private lateinit var task: Task
+
     init
     {
         view.setPresenter(this)
@@ -30,30 +32,40 @@ class TaskDetailPresenter(
 
     override fun loadTask()
     {
-        val onTaskLoaded: (Task) -> Unit = {
-            task = it
+        val callback: ILoadTaskListener = object : ILoadTaskListener
+        {
+            override fun onTaskLoaded(task: Task)
+            {
+                this@TaskDetailPresenter.task = task
 
-            if (it.title == null)
-            {
-                view.hideTitle()
-            }
-            else
-            {
-                view.showTitle(it.title)
+                if (task.title == null)
+                {
+                    view.hideTitle()
+                }
+                else
+                {
+                    view.showTitle(task.title)
+                }
+
+                if (task.description == null)
+                {
+                    view.hideDescription()
+                }
+                else
+                {
+                    view.showDescription(task.description)
+                }
+
+                view.setTaskCompleted(task.isCompleted)
             }
 
-            if (it.description == null)
+            override fun onDataNotAvailable()
             {
-                view.hideDescription()
+                view.showNoTaskData()
             }
-            else
-            {
-                view.showDescription(it.description)
-            }
-
-            view.setTaskCompleted(it.isCompleted)
         }
-        dataSource.getTask(taskGUID, onTaskLoaded)
+
+        dataSource.getTask(taskGUID, callback)
     }
 
     override fun setTaskComplete()

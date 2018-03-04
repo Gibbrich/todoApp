@@ -1,6 +1,7 @@
 package com.github.gibbrich.todo.addedittask
 
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
 
 /**
@@ -37,18 +38,27 @@ class AddEditTaskPresenter(
     {
         if (taskGUID != null)
         {
-            val onTaskLoaded: (Task) -> Unit = {
-                if (it.title != null)
+            val callback: ILoadTaskListener = object : ILoadTaskListener
+            {
+                override fun onTaskLoaded(task: Task)
                 {
-                    view.setTitle(it.title)
+                    if (task.title != null)
+                    {
+                        view.setTitle(task.title)
+                    }
+
+                    if (task.description != null)
+                    {
+                        view.setDescription(task.description)
+                    }
                 }
 
-                if (it.description != null)
+                override fun onDataNotAvailable()
                 {
-                    view.setDescription(it.description)
                 }
             }
-            dataSource.getTask(taskGUID, onTaskLoaded)
+
+            dataSource.getTask(taskGUID, callback)
         }
     }
 }

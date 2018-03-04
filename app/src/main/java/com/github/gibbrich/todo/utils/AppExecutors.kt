@@ -27,7 +27,7 @@ object AppExecutors
         diskExecutor.execute(command)
     }
 
-    fun executeOnNetworkThread(command: Runnable)
+    fun executeOnNetworkThread(command: () -> Unit)
     {
         networkThreadPool.execute(command)
     }
