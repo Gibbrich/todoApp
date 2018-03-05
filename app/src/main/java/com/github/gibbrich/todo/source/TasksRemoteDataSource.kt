@@ -2,6 +2,8 @@ package com.github.gibbrich.todo.source
 
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.utils.AppExecutors
+import io.reactivex.Flowable
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Артур on 04.03.2018.
@@ -20,35 +22,51 @@ object TasksRemoteDataSource: ITasksDataSource
         tasks.put(task2.id, task2)
     }
 
-    override fun getTasks(listener: ILoadTasksListener)
+//    override fun getTasks(listener: ILoadTasksListener)
+//    {
+//        performNetworkRequest {
+//            val tasks = tasks.values.toList()
+//            AppExecutors.executeOnMainThread {
+//                listener.onTasksLoaded(tasks)
+//            }
+//        }
+//    }
+
+    override fun getTasks(): Flowable<List<Task>>
     {
-        performNetworkRequest {
-            val tasks = tasks.values.toList()
-            AppExecutors.executeOnMainThread {
-                listener.onTasksLoaded(tasks)
-            }
-        }
+        return Flowable
+                .fromIterable(tasks.values)
+                .toList()
+                .toFlowable()
+                .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
     }
 
-    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+    override fun getTask(taskGUID: String): Flowable<Task?>
     {
-        AppExecutors.executeOnNetworkThread {
-            Thread.sleep(NETWORK_LATENCY)
-
-            val task = tasks[taskGUID]
-
-            AppExecutors.executeOnMainThread {
-                if (task == null)
-                {
-                    listener.onDataNotAvailable()
-                }
-                else
-                {
-                    listener.onTaskLoaded(task)
-                }
-            }
-        }
+        return Flowable
+                .just(tasks[taskGUID])
+                .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
     }
+
+//    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+//    {
+//        AppExecutors.executeOnNetworkThread {
+//            Thread.sleep(NETWORK_LATENCY)
+//
+//            val task = tasks[taskGUID]
+//
+//            AppExecutors.executeOnMainThread {
+//                if (task == null)
+//                {
+//                    listener.onDataNotAvailable()
+//                }
+//                else
+//                {
+//                    listener.onTaskLoaded(task)
+//                }
+//            }
+//        }
+//    }
 
     override fun saveTask(task: Task)
     {

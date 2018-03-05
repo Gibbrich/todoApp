@@ -1,6 +1,7 @@
 package com.github.gibbrich.todo.source
 
 import com.github.gibbrich.todo.model.Task
+import io.reactivex.Flowable
 import java.util.HashMap
 
 /**
@@ -28,87 +29,163 @@ object TasksRepository: ITasksDataSource
         remoteDataSource.saveTask(task)
     }
 
-    override fun getTasks(listener: ILoadTasksListener)
+    override fun getTasks(): Flowable<List<Task>>
     {
         if (!cacheIsDirty)
         {
-            listener.onTasksLoaded(cachedTasks.values.toList())
+            return Flowable
+                    .fromIterable(cachedTasks.values)
+                    .toList()
+                    .toFlowable()
         }
         else
         {
-            val localTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
-            {
-                override fun onTasksLoaded(tasks: List<Task>)
-                {
-                    refreshCache(tasks)
-                    listener.onTasksLoaded(tasks)
-                }
+            val remoteTasks = remoteDataSource
+                    .getTasks()
+                    .flatMap { saveRemoteTasks(it) }
+                    .doOnComplete { cacheIsDirty = false }
 
-                override fun onDataNotAvailable()
-                {
-                    listener.onDataNotAvailable()
-                }
-            }
+            val localTasks = localDataSource
+                    .getTasks()
+                    .flatMap { tasks ->
+                        Flowable
+                                .fromIterable(tasks)
+                                .doOnNext { task -> cachedTasks.put(task.id, task) }
+                                .toList()
+                                .toFlowable()
+                    }
 
-            val remoteTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
-            {
-                override fun onTasksLoaded(tasks: List<Task>)
-                {
-                    refreshCache(tasks)
-                    refreshLocalDataSource(tasks)
-                    listener.onTasksLoaded(tasks)
-                }
-
-                override fun onDataNotAvailable()
-                {
-                    localDataSource.getTasks(localTasksLoadListener)
-                }
-            }
-
-            remoteDataSource.getTasks(remoteTasksLoadListener)
+            return Flowable
+                    .concat(remoteTasks, localTasks)
+                    .firstOrError()
+                    .toFlowable()
         }
     }
 
-    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+    private fun saveRemoteTasks(tasks: List<Task>): Flowable<List<Task>>
+    {
+        return Flowable
+                .fromIterable(tasks)
+                .doOnNext {
+                    localDataSource.saveTask(it)
+                    cachedTasks.put(it.id, it)
+                }
+                .toList()
+                .toFlowable()
+    }
+
+//    override fun getTasks(listener: ILoadTasksListener)
+//    {
+//        if (!cacheIsDirty)
+//        {
+//            listener.onTasksLoaded(cachedTasks.values.toList())
+//        }
+//        else
+//        {
+//            val localTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
+//            {
+//                override fun onTasksLoaded(tasks: List<Task>)
+//                {
+//                    refreshCache(tasks)
+//                    listener.onTasksLoaded(tasks)
+//                }
+//
+//                override fun onDataNotAvailable()
+//                {
+//                    listener.onDataNotAvailable()
+//                }
+//            }
+//
+//            val remoteTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
+//            {
+//                override fun onTasksLoaded(tasks: List<Task>)
+//                {
+//                    refreshCache(tasks)
+//                    refreshLocalDataSource(tasks)
+//                    listener.onTasksLoaded(tasks)
+//                }
+//
+//                override fun onDataNotAvailable()
+//                {
+//                    localDataSource.getTasks(localTasksLoadListener)
+//                }
+//            }
+//
+//            remoteDataSource.getTasks(remoteTasksLoadListener)
+//        }
+//    }
+    override fun getTask(taskGUID: String): Flowable<Task?>
     {
         if (cachedTasks.containsKey(taskGUID))
         {
-            listener.onTaskLoaded(cachedTasks[taskGUID]!!)
+            return Flowable.just(cachedTasks[taskGUID]!!)
         }
-        else
-        {
-            val remoteTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
-            {
-                override fun onTaskLoaded(task: Task)
-                {
-                    cachedTasks.put(task.id, task)
-                    localDataSource.saveTask(task)
-                    listener.onTaskLoaded(task)
+
+        val localTask = localDataSource
+                .getTask(taskGUID)
+                .doOnNext {
+                    if (it != null)
+                    {
+                        cachedTasks.put(it.id, it)
+                    }
                 }
 
-                override fun onDataNotAvailable()
-                {
-                    listener.onDataNotAvailable()
-                }
-            }
-
-            val localTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
-            {
-                override fun onTaskLoaded(task: Task)
-                {
-                    cachedTasks.put(task.id, task)
-                    listener.onTaskLoaded(task)
+        val remoteTask = remoteDataSource
+                .getTask(taskGUID)
+                .doOnNext {
+                    if (it != null)
+                    {
+                        localDataSource.saveTask(it)
+                        cachedTasks.put(it.id, it)
+                    }
                 }
 
-                override fun onDataNotAvailable()
-                {
-                    remoteDataSource.getTask(taskGUID, remoteTaskLoadListener)
-                }
-            }
-
-            localDataSource.getTask(taskGUID, localTaskLoadListener)
-        }
+        return Flowable
+                .concat(localTask, remoteTask)
+                .firstElement()
+                .toFlowable()
     }
+
+    //    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+//    {
+//        if (cachedTasks.containsKey(taskGUID))
+//        {
+//            listener.onTaskLoaded(cachedTasks[taskGUID]!!)
+//        }
+//        else
+//        {
+//            val remoteTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
+//            {
+//                override fun onTaskLoaded(task: Task)
+//                {
+//                    cachedTasks.put(task.id, task)
+//                    localDataSource.saveTask(task)
+//                    listener.onTaskLoaded(task)
+//                }
+//
+//                override fun onDataNotAvailable()
+//                {
+//                    listener.onDataNotAvailable()
+//                }
+//            }
+//
+//            val localTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
+//            {
+//                override fun onTaskLoaded(task: Task)
+//                {
+//                    cachedTasks.put(task.id, task)
+//                    listener.onTaskLoaded(task)
+//                }
+//
+//                override fun onDataNotAvailable()
+//                {
+//                    remoteDataSource.getTask(taskGUID, remoteTaskLoadListener)
+//                }
+//            }
+//
+//            localDataSource.getTask(taskGUID, localTaskLoadListener)
+//        }
+//    }
 
     override fun setTaskState(taskGUID: String, isCompleted: Boolean)
     {

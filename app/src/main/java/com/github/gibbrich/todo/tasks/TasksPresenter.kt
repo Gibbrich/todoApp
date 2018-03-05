@@ -5,6 +5,10 @@ import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.source.ILoadTasksListener
 import com.github.gibbrich.todo.source.ITasksDataSource
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Dvurechenskiyi on 01.03.2018.
@@ -14,6 +18,8 @@ class TasksPresenter(
         private val dataSource: ITasksDataSource
 ): ITasksContract.Presenter
 {
+    private val disposables: CompositeDisposable = CompositeDisposable()
+
     init
     {
         view.setPresenter(this)
@@ -51,26 +57,43 @@ class TasksPresenter(
     {
         view.setLoadingIndicator(true)
 
-        val callback: ILoadTasksListener = object : ILoadTasksListener
-        {
-            override fun onTasksLoaded(tasks: List<Task>)
-            {
-                view.setLoadingIndicator(false)
-                view.showTasks(tasks)
-            }
+//        val callback: ILoadTasksListener = object : ILoadTasksListener
+//        {
+//            override fun onTasksLoaded(tasks: List<Task>)
+//            {
+//                view.setLoadingIndicator(false)
+//                view.showTasks(tasks)
+//            }
+//
+//            override fun onDataNotAvailable()
+//            {
+//                view.setLoadingIndicator(false)
+//                view.showLoadingTasksError()
+//            }
+//        }
+//
+//        dataSource.getTasks(callback)
 
-            override fun onDataNotAvailable()
-            {
-                view.setLoadingIndicator(false)
-                view.showLoadingTasksError()
-            }
-        }
+        disposables.clear()
 
-        dataSource.getTasks(callback)
+        dataSource
+                .getTasks()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete { view.setLoadingIndicator(false) }
+                .subscribe(
+                        { tasks -> view.showTasks(tasks) },
+                        { _ -> view.showLoadingTasksError() }
+                )
     }
 
-    override fun start()
+    override fun subscribe()
     {
         loadTasks()
+    }
+
+    override fun unsubscribe()
+    {
+        disposables.clear()
     }
 }

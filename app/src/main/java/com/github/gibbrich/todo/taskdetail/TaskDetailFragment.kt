@@ -59,7 +59,7 @@ class TaskDetailFragment : Fragment(), ITaskDetailContract.View
     {
         super.onResume()
 
-        presenter.start()
+        presenter.subscribe()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)

@@ -63,7 +63,14 @@ class TasksFragment : Fragment(), ITaskClickListener, ITasksContract.View
     {
         super.onResume()
 
-        presenter.start()
+        presenter.subscribe()
+    }
+
+    override fun onPause()
+    {
+        super.onPause()
+
+        presenter.unsubscribe()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)

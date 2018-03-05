@@ -5,6 +5,9 @@ import com.github.gibbrich.todo.ToDoApplication
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Dvurechenskiyi on 02.03.2018.
@@ -16,13 +19,14 @@ class TaskDetailPresenter(
 ) : ITaskDetailContract.Presenter
 {
     private lateinit var task: Task
+    private val disposables: CompositeDisposable = CompositeDisposable()
 
     init
     {
         view.setPresenter(this)
     }
 
-    override fun start()
+    override fun subscribe()
     {
         val loadingLabel = "${ToDoApplication.instance.getString(R.string.loading)}..."
         view.showTitle(loadingLabel)
@@ -32,40 +36,73 @@ class TaskDetailPresenter(
 
     override fun loadTask()
     {
-        val callback: ILoadTaskListener = object : ILoadTaskListener
-        {
-            override fun onTaskLoaded(task: Task)
-            {
-                this@TaskDetailPresenter.task = task
+//        val callback: ILoadTaskListener = object : ILoadTaskListener
+//        {
+//            override fun onTaskLoaded(task: Task)
+//            {
+//                this@TaskDetailPresenter.task = task
+//
+//                if (task.title == null)
+//                {
+//                    view.hideTitle()
+//                }
+//                else
+//                {
+//                    view.showTitle(task.title)
+//                }
+//
+//                if (task.description == null)
+//                {
+//                    view.hideDescription()
+//                }
+//                else
+//                {
+//                    view.showDescription(task.description)
+//                }
+//
+//                view.setTaskCompleted(task.isCompleted)
+//            }
+//
+//            override fun onDataNotAvailable()
+//            {
+//                view.showNoTaskData()
+//            }
+//        }
+//
+//        dataSource.getTask(taskGUID, callback)
 
-                if (task.title == null)
-                {
-                    view.hideTitle()
-                }
-                else
-                {
-                    view.showTitle(task.title)
-                }
+        dataSource
+                .getTask(taskGUID)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        {task ->
+                            if (task != null)
+                            {
+                                this@TaskDetailPresenter.task = task
 
-                if (task.description == null)
-                {
-                    view.hideDescription()
-                }
-                else
-                {
-                    view.showDescription(task.description)
-                }
+                                if (task.title == null)
+                                {
+                                    view.hideTitle()
+                                }
+                                else
+                                {
+                                    view.showTitle(task.title)
+                                }
 
-                view.setTaskCompleted(task.isCompleted)
-            }
+                                if (task.description == null)
+                                {
+                                    view.hideDescription()
+                                }
+                                else
+                                {
+                                    view.showDescription(task.description)
+                                }
 
-            override fun onDataNotAvailable()
-            {
-                view.showNoTaskData()
-            }
-        }
-
-        dataSource.getTask(taskGUID, callback)
+                                view.setTaskCompleted(task.isCompleted)
+                            }
+                        }
+                )
     }
 
     override fun setTaskComplete()
@@ -87,5 +124,10 @@ class TaskDetailPresenter(
     {
         dataSource.deleteTask(task)
         view.showTaskDeleted()
+    }
+
+    override fun unsubscribe()
+    {
+        disposables.clear()
     }
 }

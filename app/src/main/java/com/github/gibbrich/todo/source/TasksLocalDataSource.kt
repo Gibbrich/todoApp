@@ -2,27 +2,45 @@ package com.github.gibbrich.todo.source
 
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.utils.AppExecutors
+import io.reactivex.Flowable
 
 /**
  * Created by Dvurechenskiyi on 01.03.2018.
  */
 object TasksLocalDataSource: ITasksDataSource
 {
-    override fun getTasks(listener: ILoadTasksListener)
+    override fun getTasks(): Flowable<List<Task>>
     {
-        AppExecutors.executeOnDiskThread {
-            val tasks = ToDoDatabase.instance.dao.getTasks()
-            AppExecutors.executeOnMainThread { listener.onTasksLoaded(tasks) }
-        }
+        return ToDoDatabase
+                .instance
+                .dao
+                .getTasks()
     }
 
-    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+    override fun getTask(taskGUID: String): Flowable<Task?>
     {
-        AppExecutors.executeOnDiskThread {
-            val task = ToDoDatabase.instance.dao.getTask(taskGUID)
-            AppExecutors.executeOnMainThread { listener.onTaskLoaded(task) }
-        }
+        return ToDoDatabase
+                .instance
+                .dao
+                .getTask(taskGUID)
+                .toFlowable()
     }
+
+//    override fun getTasks(listener: ILoadTasksListener)
+//    {
+//        AppExecutors.executeOnDiskThread {
+//            val tasks = ToDoDatabase.instance.dao.getTasks()
+//            AppExecutors.executeOnMainThread { listener.onTasksLoaded(tasks) }
+//        }
+//    }
+//
+//    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
+//    {
+//        AppExecutors.executeOnDiskThread {
+//            val task = ToDoDatabase.instance.dao.getTask(taskGUID)
+//            AppExecutors.executeOnMainThread { listener.onTaskLoaded(task) }
+//        }
+//    }
 
     override fun deleteAllTasks()
     {

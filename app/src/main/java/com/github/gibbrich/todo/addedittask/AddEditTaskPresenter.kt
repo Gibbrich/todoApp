@@ -3,6 +3,9 @@ package com.github.gibbrich.todo.addedittask
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Артур on 01.03.2018.
@@ -13,6 +16,8 @@ class AddEditTaskPresenter(
         private val dataSource: ITasksDataSource
 ): IAddEditTaskContract.Presenter
 {
+    private val disposables: CompositeDisposable = CompositeDisposable()
+
     init
     {
         view.setPresenter(this)
@@ -34,31 +39,59 @@ class AddEditTaskPresenter(
         }
     }
 
-    override fun start()
+    override fun subscribe()
     {
         if (taskGUID != null)
         {
-            val callback: ILoadTaskListener = object : ILoadTaskListener
-            {
-                override fun onTaskLoaded(task: Task)
-                {
-                    if (task.title != null)
-                    {
-                        view.setTitle(task.title)
-                    }
+//            val callback: ILoadTaskListener = object : ILoadTaskListener
+//            {
+//                override fun onTaskLoaded(task: Task)
+//                {
+//                    if (task.title != null)
+//                    {
+//                        view.setTitle(task.title)
+//                    }
+//
+//                    if (task.description != null)
+//                    {
+//                        view.setDescription(task.description)
+//                    }
+//                }
+//
+//                override fun onDataNotAvailable()
+//                {
+//                }
+//            }
+//
+//            dataSource.getTask(taskGUID, callback)
 
-                    if (task.description != null)
-                    {
-                        view.setDescription(task.description)
-                    }
-                }
+            val disposable = dataSource
+                    .getTask(taskGUID)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { task ->
+                                if (task != null)
+                                {
+                                    if (task.title != null)
+                                    {
+                                        view.setTitle(task.title)
+                                    }
 
-                override fun onDataNotAvailable()
-                {
-                }
-            }
+                                    if (task.description != null)
+                                    {
+                                        view.setDescription(task.description)
+                                    }
+                                }
+                            }
+                    )
 
-            dataSource.getTask(taskGUID, callback)
+            disposables.add(disposable)
         }
+    }
+
+    override fun unsubscribe()
+    {
+        disposables.clear()
     }
 }

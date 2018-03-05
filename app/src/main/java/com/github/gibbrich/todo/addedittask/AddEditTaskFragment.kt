@@ -44,7 +44,7 @@ class AddEditTaskFragment : Fragment(), IAddEditTaskContract.View
     {
         super.onResume()
 
-        presenter.start()
+        presenter.subscribe()
     }
 
     override fun setPresenter(presenter: IAddEditTaskContract.Presenter)
