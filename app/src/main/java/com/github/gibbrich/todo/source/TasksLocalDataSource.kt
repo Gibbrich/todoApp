@@ -2,71 +2,46 @@ package com.github.gibbrich.todo.source
 
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.utils.AppExecutors
+import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Scheduler
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Dvurechenskiyi on 01.03.2018.
  */
-object TasksLocalDataSource: ITasksDataSource
+object TasksLocalDataSource : ITasksDataSource
 {
-    override fun getTasks(): Flowable<List<Task>>
-    {
-        return ToDoDatabase
-                .instance
-                .dao
-                .getTasks()
-    }
+    override fun getTasks() = ToDoDatabase.instance.dao.getTasks()
 
-    override fun getTask(taskGUID: String): Flowable<Task?>
-    {
-        return ToDoDatabase
-                .instance
-                .dao
-                .getTask(taskGUID)
-                .toFlowable()
-    }
-
-//    override fun getTasks(listener: ILoadTasksListener)
-//    {
-//        AppExecutors.executeOnDiskThread {
-//            val tasks = ToDoDatabase.instance.dao.getTasks()
-//            AppExecutors.executeOnMainThread { listener.onTasksLoaded(tasks) }
-//        }
-//    }
-//
-//    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
-//    {
-//        AppExecutors.executeOnDiskThread {
-//            val task = ToDoDatabase.instance.dao.getTask(taskGUID)
-//            AppExecutors.executeOnMainThread { listener.onTaskLoaded(task) }
-//        }
-//    }
+    override fun getTask(taskGUID: String) = ToDoDatabase.instance.dao.getTask(taskGUID).toFlowable()
 
     override fun deleteAllTasks()
     {
-        AppExecutors.executeOnDiskThread {
-            ToDoDatabase.instance.dao.deleteAllTasks()
-        }
+        performAction { ToDoDatabase.instance.dao.deleteAllTasks() }
     }
 
     override fun deleteTask(task: Task)
     {
-        AppExecutors.executeOnDiskThread {
-            ToDoDatabase.instance.dao.deleteTask(task)
-        }
+        performAction { ToDoDatabase.instance.dao.deleteTask(task) }
     }
 
     override fun setTaskState(taskGUID: String, isCompleted: Boolean)
     {
-        AppExecutors.executeOnDiskThread {
-            ToDoDatabase.instance.dao.setTaskState(taskGUID, isCompleted)
-        }
+        performAction { ToDoDatabase.instance.dao.setTaskState(taskGUID, isCompleted) }
     }
 
     override fun saveTask(task: Task)
     {
-        AppExecutors.executeOnDiskThread {
-            ToDoDatabase.instance.dao.insertTask(task)
-        }
+        performAction { ToDoDatabase.instance.dao.insertTask(task) }
+    }
+
+    private fun performAction(action: () -> Unit)
+    {
+        Completable
+                .fromAction(action)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 }

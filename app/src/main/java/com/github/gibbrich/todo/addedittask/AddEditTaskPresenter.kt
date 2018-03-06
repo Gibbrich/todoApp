@@ -1,8 +1,8 @@
 package com.github.gibbrich.todo.addedittask
 
 import com.github.gibbrich.todo.model.Task
-import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
+import com.github.gibbrich.todo.utils.logEnd
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -14,7 +14,7 @@ class AddEditTaskPresenter(
         private val taskGUID: String?,
         private val view: IAddEditTaskContract.View,
         private val dataSource: ITasksDataSource
-): IAddEditTaskContract.Presenter
+) : IAddEditTaskContract.Presenter
 {
     private val disposables: CompositeDisposable = CompositeDisposable()
 
@@ -43,28 +43,6 @@ class AddEditTaskPresenter(
     {
         if (taskGUID != null)
         {
-//            val callback: ILoadTaskListener = object : ILoadTaskListener
-//            {
-//                override fun onTaskLoaded(task: Task)
-//                {
-//                    if (task.title != null)
-//                    {
-//                        view.setTitle(task.title)
-//                    }
-//
-//                    if (task.description != null)
-//                    {
-//                        view.setDescription(task.description)
-//                    }
-//                }
-//
-//                override fun onDataNotAvailable()
-//                {
-//                }
-//            }
-//
-//            dataSource.getTask(taskGUID, callback)
-
             val disposable = dataSource
                     .getTask(taskGUID)
                     .subscribeOn(Schedulers.computation())

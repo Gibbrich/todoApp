@@ -3,7 +3,6 @@ package com.github.gibbrich.todo.taskdetail
 import com.github.gibbrich.todo.R
 import com.github.gibbrich.todo.ToDoApplication
 import com.github.gibbrich.todo.model.Task
-import com.github.gibbrich.todo.source.ILoadTaskListener
 import com.github.gibbrich.todo.source.ITasksDataSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -36,41 +35,6 @@ class TaskDetailPresenter(
 
     override fun loadTask()
     {
-//        val callback: ILoadTaskListener = object : ILoadTaskListener
-//        {
-//            override fun onTaskLoaded(task: Task)
-//            {
-//                this@TaskDetailPresenter.task = task
-//
-//                if (task.title == null)
-//                {
-//                    view.hideTitle()
-//                }
-//                else
-//                {
-//                    view.showTitle(task.title)
-//                }
-//
-//                if (task.description == null)
-//                {
-//                    view.hideDescription()
-//                }
-//                else
-//                {
-//                    view.showDescription(task.description)
-//                }
-//
-//                view.setTaskCompleted(task.isCompleted)
-//            }
-//
-//            override fun onDataNotAvailable()
-//            {
-//                view.showNoTaskData()
-//            }
-//        }
-//
-//        dataSource.getTask(taskGUID, callback)
-
         dataSource
                 .getTask(taskGUID)
                 .subscribeOn(Schedulers.io())

@@ -3,8 +3,8 @@ package com.github.gibbrich.todo.tasks
 import android.app.Activity
 import com.github.gibbrich.todo.addedittask.AddEditTaskActivity
 import com.github.gibbrich.todo.model.Task
-import com.github.gibbrich.todo.source.ILoadTasksListener
 import com.github.gibbrich.todo.source.ITasksDataSource
+import com.github.gibbrich.todo.utils.logEnd
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -56,35 +56,19 @@ class TasksPresenter(
     override fun loadTasks()
     {
         view.setLoadingIndicator(true)
-
-//        val callback: ILoadTasksListener = object : ILoadTasksListener
-//        {
-//            override fun onTasksLoaded(tasks: List<Task>)
-//            {
-//                view.setLoadingIndicator(false)
-//                view.showTasks(tasks)
-//            }
-//
-//            override fun onDataNotAvailable()
-//            {
-//                view.setLoadingIndicator(false)
-//                view.showLoadingTasksError()
-//            }
-//        }
-//
-//        dataSource.getTasks(callback)
-
         disposables.clear()
 
-        dataSource
+        val disposable = dataSource
                 .getTasks()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete { view.setLoadingIndicator(false) }
                 .subscribe(
                         { tasks -> view.showTasks(tasks) },
-                        { _ -> view.showLoadingTasksError() }
+                        { _ -> view.showLoadingTasksError() },
+                        { view.setLoadingIndicator(false) }
                 )
+
+        disposables.add(disposable)
     }
 
     override fun subscribe()

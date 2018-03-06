@@ -1,6 +1,8 @@
 package com.github.gibbrich.todo.source
 
 import com.github.gibbrich.todo.model.Task
+import com.github.gibbrich.todo.utils.logEnd
+import com.github.gibbrich.todo.utils.logStart
 import io.reactivex.Flowable
 import java.util.HashMap
 
@@ -12,7 +14,7 @@ object TasksRepository: ITasksDataSource
     private val localDataSource: ITasksDataSource
     private val remoteDataSource: ITasksDataSource
 
-    private var cachedTasks: MutableMap<String, Task> = HashMap()
+    private var cachedTasks: MutableMap<String, Task> = LinkedHashMap()
     private var cacheIsDirty = true
 
     init
@@ -56,7 +58,7 @@ object TasksRepository: ITasksDataSource
                     }
 
             return Flowable
-                    .concat(remoteTasks, localTasks)
+                    .concat(localTasks, remoteTasks)
                     .firstOrError()
                     .toFlowable()
         }
@@ -74,46 +76,6 @@ object TasksRepository: ITasksDataSource
                 .toFlowable()
     }
 
-//    override fun getTasks(listener: ILoadTasksListener)
-//    {
-//        if (!cacheIsDirty)
-//        {
-//            listener.onTasksLoaded(cachedTasks.values.toList())
-//        }
-//        else
-//        {
-//            val localTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
-//            {
-//                override fun onTasksLoaded(tasks: List<Task>)
-//                {
-//                    refreshCache(tasks)
-//                    listener.onTasksLoaded(tasks)
-//                }
-//
-//                override fun onDataNotAvailable()
-//                {
-//                    listener.onDataNotAvailable()
-//                }
-//            }
-//
-//            val remoteTasksLoadListener: ILoadTasksListener = object : ILoadTasksListener
-//            {
-//                override fun onTasksLoaded(tasks: List<Task>)
-//                {
-//                    refreshCache(tasks)
-//                    refreshLocalDataSource(tasks)
-//                    listener.onTasksLoaded(tasks)
-//                }
-//
-//                override fun onDataNotAvailable()
-//                {
-//                    localDataSource.getTasks(localTasksLoadListener)
-//                }
-//            }
-//
-//            remoteDataSource.getTasks(remoteTasksLoadListener)
-//        }
-//    }
     override fun getTask(taskGUID: String): Flowable<Task?>
     {
         if (cachedTasks.containsKey(taskGUID))
@@ -146,53 +108,12 @@ object TasksRepository: ITasksDataSource
                 .toFlowable()
     }
 
-    //    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
-//    {
-//        if (cachedTasks.containsKey(taskGUID))
-//        {
-//            listener.onTaskLoaded(cachedTasks[taskGUID]!!)
-//        }
-//        else
-//        {
-//            val remoteTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
-//            {
-//                override fun onTaskLoaded(task: Task)
-//                {
-//                    cachedTasks.put(task.id, task)
-//                    localDataSource.saveTask(task)
-//                    listener.onTaskLoaded(task)
-//                }
-//
-//                override fun onDataNotAvailable()
-//                {
-//                    listener.onDataNotAvailable()
-//                }
-//            }
-//
-//            val localTaskLoadListener: ILoadTaskListener = object : ILoadTaskListener
-//            {
-//                override fun onTaskLoaded(task: Task)
-//                {
-//                    cachedTasks.put(task.id, task)
-//                    listener.onTaskLoaded(task)
-//                }
-//
-//                override fun onDataNotAvailable()
-//                {
-//                    remoteDataSource.getTask(taskGUID, remoteTaskLoadListener)
-//                }
-//            }
-//
-//            localDataSource.getTask(taskGUID, localTaskLoadListener)
-//        }
-//    }
-
     override fun setTaskState(taskGUID: String, isCompleted: Boolean)
     {
         remoteDataSource.setTaskState(taskGUID, isCompleted)
         localDataSource.setTaskState(taskGUID, isCompleted)
 
-        val task = cachedTasks.get(taskGUID)!!
+        val task = cachedTasks[taskGUID]!!
         val newTask = Task(task.id, task.title, task.description, isCompleted)
         cachedTasks.put(taskGUID, newTask)
     }
@@ -202,19 +123,6 @@ object TasksRepository: ITasksDataSource
         remoteDataSource.deleteTask(task)
         localDataSource.deleteTask(task)
         cachedTasks.remove(task.id)
-    }
-
-    private fun refreshCache(tasks: List<Task>)
-    {
-        cachedTasks.clear()
-        tasks.forEach { cachedTasks.put(it.id, it) }
-        cacheIsDirty = false
-    }
-
-    private fun refreshLocalDataSource(tasks: List<Task>)
-    {
-        localDataSource.deleteAllTasks()
-        tasks.forEach { localDataSource.saveTask(it) }
     }
 
     override fun deleteAllTasks()

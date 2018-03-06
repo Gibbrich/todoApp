@@ -1,8 +1,14 @@
 package com.github.gibbrich.todo.source
 
+import android.util.Log
 import com.github.gibbrich.todo.model.Task
 import com.github.gibbrich.todo.utils.AppExecutors
+import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.schedulers.Schedulers
+import org.intellij.lang.annotations.Flow
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -22,16 +28,6 @@ object TasksRemoteDataSource: ITasksDataSource
         tasks.put(task2.id, task2)
     }
 
-//    override fun getTasks(listener: ILoadTasksListener)
-//    {
-//        performNetworkRequest {
-//            val tasks = tasks.values.toList()
-//            AppExecutors.executeOnMainThread {
-//                listener.onTasksLoaded(tasks)
-//            }
-//        }
-//    }
-
     override fun getTasks(): Flowable<List<Task>>
     {
         return Flowable
@@ -43,36 +39,23 @@ object TasksRemoteDataSource: ITasksDataSource
 
     override fun getTask(taskGUID: String): Flowable<Task?>
     {
-        return Flowable
-                .just(tasks[taskGUID])
-                .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
+        if (tasks[taskGUID] == null)
+        {
+            return Flowable
+                    .empty<Task>()
+                    .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
+        }
+        else
+        {
+            return Flowable
+                    .just(tasks[taskGUID])
+                    .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
+        }
     }
-
-//    override fun getTask(taskGUID: String, listener: ILoadTaskListener)
-//    {
-//        AppExecutors.executeOnNetworkThread {
-//            Thread.sleep(NETWORK_LATENCY)
-//
-//            val task = tasks[taskGUID]
-//
-//            AppExecutors.executeOnMainThread {
-//                if (task == null)
-//                {
-//                    listener.onDataNotAvailable()
-//                }
-//                else
-//                {
-//                    listener.onTaskLoaded(task)
-//                }
-//            }
-//        }
-//    }
 
     override fun saveTask(task: Task)
     {
-        performNetworkRequest {
-            tasks.put(task.id, task)
-        }
+        performNetworkRequest { tasks.put(task.id, task) }
     }
 
     override fun setTaskState(taskGUID: String, isCompleted: Boolean)
@@ -86,23 +69,20 @@ object TasksRemoteDataSource: ITasksDataSource
 
     override fun deleteTask(task: Task)
     {
-        performNetworkRequest {
-            tasks.remove(task.id)
-        }
+        performNetworkRequest { tasks.remove(task.id) }
     }
 
     override fun deleteAllTasks()
     {
-        performNetworkRequest {
-            tasks.clear()
-        }
+        performNetworkRequest { tasks.clear() }
     }
 
     private fun performNetworkRequest(command: () -> Unit)
     {
-        AppExecutors.executeOnNetworkThread {
-            Thread.sleep(NETWORK_LATENCY)
-            command()
-        }
+        Completable
+                .fromAction(command)
+                .delay(NETWORK_LATENCY, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.computation())
+                .subscribe()
     }
 }

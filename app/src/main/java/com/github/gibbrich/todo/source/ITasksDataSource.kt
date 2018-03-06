@@ -15,15 +15,3 @@ interface ITasksDataSource
     fun deleteTask(task: Task)
     fun deleteAllTasks()
 }
-
-interface ILoadTasksListener
-{
-    fun onTasksLoaded(tasks: List<Task>)
-    fun onDataNotAvailable()
-}
-
-interface ILoadTaskListener
-{
-    fun onTaskLoaded(task: Task)
-    fun onDataNotAvailable()
-}
